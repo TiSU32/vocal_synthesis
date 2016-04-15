@@ -69,7 +69,7 @@ for i in range(cfg.depth_mlp):
         activity_regularizer=None,
         W_constraint=None,
         b_constraint=None,
-        batch_input_shape=input_shape if i == 0 else None)
+        batch_input_shape=input_shape if i == 0 else None))
     model.add(Dropout(0.2))
 
 # adding LSTM layers to the model

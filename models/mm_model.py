@@ -17,13 +17,15 @@ from keras.optimizers import RMSprop
 from keras.layers.recurrent import LSTM
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 
+from vocal_synthesis.datasets.monk_music import monk_music_stream
+
 
 # Reading configuration for the model
-with file('/data/lisatmp4/sylvaint/play/experiments/mm_160_1.cfg') as f:
+with file('/data/lisatmp4/sylvaint/vocal_synthesis/experiments/mm_small.cfg') as f:
     cfg = Config(f)
 
 print cfg
-assert(cfg.frame_size % cfg.frnn_step_size == 0)
+assert(cfg.frame_size % cfg.sub_frame_size == 0)
 floatX = theano.config.floatX
 
 # Getting name, creating output directory
@@ -59,8 +61,10 @@ print "Created validation stream"
 model = Sequential()
 input_shape = (cfg.batch_size,cfg.seq_size,cfg.frame_size)
 # adding input mlp to the model
-for i in range(cfg.depth_mlp):
-    model.add(Dense(output_dim,
+for i in range(1):
+    model.add(Dense(
+        output_dim = cfg.dim_mlp,
+        batch_input_shape = input_shape,
         init='glorot_uniform',
         activation='relu',
         weights=None,
@@ -68,14 +72,14 @@ for i in range(cfg.depth_mlp):
         b_regularizer=None,
         activity_regularizer=None,
         W_constraint=None,
-        b_constraint=None,
-        batch_input_shape=input_shape if i == 0 else None)
+        b_constraint=None))
     model.add(Dropout(0.2))
 
 # adding LSTM layers to the model
 #lstm_input_dim = mlp_input_dim
-for i in range(cfg.depth_lstm):
-    model.add(LSTM(output_dim,
+for i in range(1):
+    model.add(LSTM(
+        output_dim = cfg.dim_lstm,
         init='glorot_uniform',
         inner_init='orthogonal',
         forget_bias_init='one',
@@ -89,7 +93,7 @@ for i in range(cfg.depth_lstm):
 
 model.compile(
     optimizer='rmsprop',
-    loss="mean_squared_error"
+    loss="mean_squared_error",
     metrics=['accuracy'])
 
 X = np.zeros((3,cfg.batch_size,cfg.seq_size,cfg.frame_size))
